@@ -82,6 +82,7 @@ namespace HA.Common.Tests
             var idsAndMeasurements = sut2.ReadMeasurementsFromStream(1).ToArray();
             Assert.That(idsAndMeasurements.Length, Is.EqualTo(1));
             var id = idsAndMeasurements.First().Id;
+            Assert.That(id, Is.Not.Null);
             var measurement = idsAndMeasurements.First().Item;
 
             idsAndMeasurements = sut2.ReadMeasurementsFromStream(2, id).ToArray();

@@ -27,7 +27,7 @@ namespace HA.Common.Tests
             var value = "Test";
             Assert.That(db.StringSet("mykey", value), Is.True);
             var readValue = db.StringGet("mykey").ToString();
-            Assert.AreEqual(value, readValue);
+            Assert.That(value, Is.EqualTo(readValue));
         }
 
         [Test]

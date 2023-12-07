@@ -34,6 +34,7 @@ namespace HA.Common.Tests
 
             var fileStoreData = sut.ReadFirstFile();
             Assert.That(fileStoreData.FileCount > 0);
+            Assert.That(fileStoreData.FileInfo, Is.Not.Null);
             FileInfo info = fileStoreData.FileInfo;
             Assert.That(info, Is.Not.Null);
 
