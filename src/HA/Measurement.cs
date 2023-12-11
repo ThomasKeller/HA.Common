@@ -27,8 +27,6 @@ public class Measurement
 
     public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-    public DateTime MeasurementTime { get; set; }
-
     /// <summary>
     /// UTC Ticks
     /// </summary>
