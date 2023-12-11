@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Data.SqlTypes;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 
@@ -6,6 +7,18 @@ namespace HA;
 
 public class Measurement
 {
+    private DateTime _measurementUtcTime;
+
+    public Measurement()
+    {
+        SetDateTime(DateTime.Now);
+    }
+
+    public Measurement(DateTime measurementTime)
+    {
+        SetDateTime(measurementTime);
+    }
+
     public string? ExternalId { get; set; }
 
     public string? Device { get; set; }
@@ -14,9 +27,23 @@ public class Measurement
 
     public Dictionary<string, string> Tags { get; set; } = new Dictionary<string, string>();
 
-    public long Ticks { get; set; } = DateTime.Now.Ticks;
+    public DateTime MeasurementTime { get; set; }
+
+    /// <summary>
+    /// UTC Ticks
+    /// </summary>
+    public long Ticks { 
+        get { return _measurementUtcTime.Ticks; }
+        set { _measurementUtcTime = new DateTime(value, DateTimeKind.Utc); }
+    }
 
     public List<MeasuredValue> Values { get; set; } = new List<MeasuredValue>();
+
+    public void AddValue(string name, object value)
+    {
+        if (value != null)
+            Values.Add(MeasuredValue.Create(name, value));
+    }
 
     public bool ContainsMeasuredValueKey(string key)
     {
@@ -25,15 +52,15 @@ public class Measurement
 
     public DateTime GetTimeStamp()
     {
-        return new DateTime(Ticks);
+        return _measurementUtcTime.ToLocalTime();
     }
 
     public DateTime GetUtcTimeStamp()
     {
-        return new DateTime(Ticks).ToUniversalTime();
+        return _measurementUtcTime;
     }
 
-    public string ToLineProtocol()
+    public string ToLineProtocol(TimeResolution resolution = TimeResolution.ns)
     {
         var sb = new StringBuilder();
         //weather temperature=82 1465839830100400200
@@ -63,8 +90,8 @@ public class Measurement
         // 1669473029372994    µs
         // 1669473029372       ms
         // 1669473029          s
-        sb.Append(" ")
-          .Append(LineProtocolSyntax.FormatTimestamp(GetUtcTimeStamp()));
+        sb.Append(" ");
+        sb.Append(LineProtocolSyntax.FormatTimestamp(GetUtcTimeStamp(), resolution));
         return sb.ToString();
     }
 
@@ -126,9 +153,18 @@ public class Measurement
             }
         }
         var epochText = line.Substring(position + 1).TrimEnd();
+        var dateTime = DateTime.MinValue;
         if (long.TryParse(epochText, out var epockTicks))
         {
-            result.Ticks = epockTicks.FromEpoch().ToLocalTime().Ticks;
+            switch (epochText.Length)
+            {
+                case 10: dateTime = epockTicks.FromEpoch(TimeResolution.s); break;
+                case 13: dateTime = epockTicks.FromEpoch(TimeResolution.ms); break;
+                case 16: dateTime = epockTicks.FromEpoch(TimeResolution.us); break;
+                case 19: dateTime = epockTicks.FromEpoch(TimeResolution.ns); break;
+                default: throw new ArgumentOutOfRangeException("Epoch time length should be 10, 13, 16 or 19 numbers");
+            }
+            result.SetDateTime(dateTime);
         }
         return result;
     }
@@ -168,6 +204,16 @@ public class Measurement
         sb.Append(";TimeStamp:").Append(GetTimeStamp());
         return sb.ToString();
     }
+
+    public void SetDateTime(DateTime measurmentTime)
+    {
+        _measurementUtcTime = measurmentTime;
+        if (_measurementUtcTime.Kind != DateTimeKind.Utc)
+        {
+            _measurementUtcTime = _measurementUtcTime.ToUniversalTime();
+        }
+    }
+
 
     private static object? ConvertValue(string valueString)
     {
@@ -228,11 +274,12 @@ public class Measurement
                 p++;
                 while (p < line.Length)
                 {
-                    c = line[p++];
+                    c = line[p];
                     if (c == '\\')
                         continue;
                     if (c == stringEndChar)
                         break;
+                    p++;
                 }
             }
             if (c == '\\')

@@ -53,6 +53,8 @@ public class InfluxSimpleStore : IInfluxStore, IObserverProcessor
 
     public int Timeout { get; set; } = 30000;
 
+    public TimeResolution Resolution { get; set; } = TimeResolution.ns;
+
     public InfluxSimpleStore(string? url, string? bucket, string? org, string? token)
     {
         _url = url ?? throw new ArgumentNullException(nameof(url));
@@ -84,17 +86,17 @@ public class InfluxSimpleStore : IInfluxStore, IObserverProcessor
 
     public void WriteMeasurements(IEnumerable<Measurement> measurements)
     {
-        var request = new RestRequest($"/api/v2/write?bucket={_bucket}&org={_org}&precision=ns", Method.Post)
-        {
-            Timeout = Timeout
-        };
+        // TimeResolution "ms" "s" "us" "ns"
+        var resolution = $"{Resolution}";
+        var resource = $"/api/v2/write?bucket={_bucket}&org={_org}&precision={resolution}";
+        var request = new RestRequest(resource, Method.Post) { Timeout = Timeout };
         request = AddHeader(request);
         var body = string.Empty;
         foreach (var measurment in measurements)
         {
             if (!string.IsNullOrEmpty(body))
                 body += "\n";
-            var lineProtocol = measurment.ToLineProtocol();
+            var lineProtocol = measurment.ToLineProtocol(Resolution);
             body += lineProtocol;
         }
         request.AddParameter("text/plain", body, ParameterType.RequestBody);
@@ -104,12 +106,12 @@ public class InfluxSimpleStore : IInfluxStore, IObserverProcessor
 
     public void WriteMeasurement(Measurement measurement)
     {
-        var request = new RestRequest($"/api/v2/write?bucket={_bucket}&org={_org}&precision=ns", Method.Post)
-        {
-            Timeout = Timeout
-        };
+        // TimeResolution "ms" "s" "us" "ns"
+        var resolution = $"{Resolution}";
+        var resource = $"/api/v2/write?bucket={_bucket}&org={_org}&precision={resolution}";
+        var request = new RestRequest(resource, Method.Post) { Timeout = Timeout };
         request = AddHeader(request);
-        request.AddParameter("text/plain", measurement.ToLineProtocol(), ParameterType.RequestBody);
+        request.AddParameter("text/plain", measurement.ToLineProtocol(Resolution), ParameterType.RequestBody);
         var response = _client.Execute(request);
         ThrowExceptionIfNeeded(response, measurement);
     }

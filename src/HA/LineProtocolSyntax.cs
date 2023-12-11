@@ -43,12 +43,10 @@ public static class LineProtocolSyntax
 
     public static string FormatValue(object value)
     {
-        var v = value ?? "";
-        if (Formatters.TryGetValue(v.GetType(), out var format))
-            return format(v);
-#pragma warning disable CS8604 // Possible null reference argument.
-        return FormatString(v.ToString());
-#pragma warning restore CS8604 // Possible null reference argument.
+        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (Formatters.TryGetValue(value.GetType(), out var format))
+            return format(value);
+        return FormatString($"{value}");
     }
 
     private static string FormatInteger(object i)
@@ -76,9 +74,10 @@ public static class LineProtocolSyntax
         return "\"" + s.Replace("\"", "\\\"") + "\"";
     }
 
-    public static string FormatTimestamp(DateTime utcTimestamp)
+    public static string FormatTimestamp(DateTime utcTimestamp, TimeResolution resolution)// = TimeResolution.ns)
     {
-        var t = utcTimestamp - Origin;
-        return (t.Ticks * 100L).ToString(CultureInfo.InvariantCulture);
+        return utcTimestamp.ToEpochString(resolution);
+        //var t = utcTimestamp - Origin;
+        //return (t.Ticks * 100L).ToString(CultureInfo.InvariantCulture);
     }
 }

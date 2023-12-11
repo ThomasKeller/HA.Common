@@ -29,6 +29,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_we_create_a_unique_name()
         {
             var sut = new RedisPersistenceClient("localhost");
@@ -39,6 +40,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_we_can_read_from_group()
         {
             var sut = new RedisPersistenceClient("localhost");
@@ -56,6 +58,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_we_can_push_to_stream()
         {
             var streamName = "MyStream";

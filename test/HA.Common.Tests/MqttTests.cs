@@ -28,6 +28,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_we_create_a_unique_name()
         {
             var sut = new MqttPublisher(_loggerFactory.CreateLogger<MqttPublisher>(), "localhost");

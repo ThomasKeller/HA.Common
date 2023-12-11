@@ -37,7 +37,6 @@ namespace HA.Common.Tests
             Assert.That(fileStoreData.FileInfo, Is.Not.Null);
             FileInfo info = fileStoreData.FileInfo;
             Assert.That(info, Is.Not.Null);
-
             Assert.That(sut.MarkAsProcessed(info), Is.True);
         }
     }

@@ -29,6 +29,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_throws_UnauthorizedException_when_using_invalid_token()
         {
             var sut = new InfluxSimpleStore("http://192.168.111.17:8086", "Test", "Keller", _token + "-");
@@ -38,6 +39,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_client_throws_ArgumentNullException_when_using_empty_measurement()
         {
             var reachable = _client.Ping();
@@ -46,6 +48,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_client_throws_BadRequestException_when_using_measuremen_only_with_device_name()
         {
             var reachable = _client.Ping();
@@ -54,6 +57,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_client_throws_RestApiException_when_influx_server_is_not_reachable()
         {
             var sut = new InfluxSimpleStore("http://192.168.112.17:8086", "Test", "Keller", _token) { Timeout = 2000 };
@@ -61,6 +65,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_is_reachable()
         {
             var pingResult = _client.Ping();
@@ -68,6 +73,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_is_healthy()
         {
             var pingResult = _client.CheckHealth();
@@ -75,6 +81,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_is_able_to_write_measurement()
         {
             Measurement measurement = CreateMeasurement();
@@ -96,6 +103,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_is_able_to_write_measurements()
         {
             _client.WriteMeasurements(new[] {
@@ -106,6 +114,7 @@ namespace HA.Common.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void check_that_influx_is_able_to_write_measurements2()
         {
             var measurement1 = CreateMeasurement();
