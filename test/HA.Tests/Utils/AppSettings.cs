@@ -1,18 +1,19 @@
 ﻿using HA.AppTools;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.Logging;
 
 namespace HA.Tests.Utils;
 
 public class AppSettings : AppSettingsBase
 {
-    public AppSettings(ILogger logger) : base(logger)
+    public AppSettings(ILogger logger)
     {
         ReadEnvironmentVariables();
     }
 
     [EnvParameter("ENV_STRING")]
-    [ConfigParameter("env1", "var1")]
+    [ConfigParameter("env1", "var1", Required = true)]
     public string? EnvString { get; set; }
 
     [EnvParameter("ENV_INT")]
@@ -34,9 +35,7 @@ public class AppSettings : AppSettingsBase
         var configurationBuilder = new ConfigurationBuilder();
         IConfiguration conf = configurationBuilder
             .AddJsonFile(appConfigFilePath)
-            .AddEnvironmentVariables()
             .Build();
         ReadAppConfigFile(conf);
-
     }
 }
