@@ -91,13 +91,11 @@ public class InfluxSimpleStore : IInfluxStore, IObserverProcessor
         };
         request = AddHeader(request);
         var sb = new StringBuilder();
-        var first = true;
-        foreach (var measurment in measurements)
+        foreach (var measurement in measurements)
         {
-            if (!first)
+            if (sb.Length > 0)
                 sb.Append('\n');
-            first = false;
-            var lineProtocol = measurment.ToLineProtocol();
+            var lineProtocol = measurement.ToLineProtocol();
             sb.Append(lineProtocol);
         }
         request.AddParameter("text/plain", sb.ToString(), ParameterType.RequestBody);

@@ -93,13 +93,11 @@ public class InfluxSimpleStore : IInfluxStore, IObserverProcessor
         var request = new RestRequest(resource, Method.Post) { Timeout = Timeout };
         request = AddHeader(request);
         var sb = new StringBuilder();
-        var first = true;
-        foreach (var measurment in measurements)
+        foreach (var measurement in measurements)
         {
-            if (!first)
+            if (sb.Length > 0)
                 sb.Append('\n');
-            first = false;
-            var lineProtocol = measurment.ToLineProtocol(Resolution);
+            var lineProtocol = measurement.ToLineProtocol(Resolution);
             sb.Append(lineProtocol);
         }
         request.AddParameter("text/plain", sb.ToString(), ParameterType.RequestBody);
