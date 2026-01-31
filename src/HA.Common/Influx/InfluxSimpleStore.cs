@@ -1,5 +1,6 @@
 ﻿using RestSharp;
 using System.Net;
+using System.Text;
 
 namespace HA.Common.Influx;
 
@@ -89,15 +90,17 @@ public class InfluxSimpleStore : IInfluxStore, IObserverProcessor
             Timeout = Timeout
         };
         request = AddHeader(request);
-        var body = string.Empty;
+        var sb = new StringBuilder();
+        var first = true;
         foreach (var measurment in measurements)
         {
-            if (!string.IsNullOrEmpty(body))
-                body += "\n";
+            if (!first)
+                sb.Append('\n');
+            first = false;
             var lineProtocol = measurment.ToLineProtocol();
-            body += lineProtocol;
+            sb.Append(lineProtocol);
         }
-        request.AddParameter("text/plain", body, ParameterType.RequestBody);
+        request.AddParameter("text/plain", sb.ToString(), ParameterType.RequestBody);
         var response = _client.Execute(request);
         ThrowExceptionIfNeeded(response, measurements.ToArray());
     }
