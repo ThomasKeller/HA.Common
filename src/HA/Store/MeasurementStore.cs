@@ -35,7 +35,6 @@ public class MeasurementStore : IMeasurementStore
     {
         using (var db = new DatabaseContext(_databaseName))
         {
-            db.MeasurementEntities.Count();
             var entity = db.MeasurementEntities.Find(id);
             if (entity != null)
             {
@@ -50,14 +49,9 @@ public class MeasurementStore : IMeasurementStore
     {
         using (var db = new DatabaseContext(_databaseName))
         {
-            foreach (var id in ids)
-            {
-                var entity = db.MeasurementEntities.Find(id);
-                if (entity != null)
-                {
-                    db.MeasurementEntities.Remove(entity);
-                }
-            }
+            var idsToRemove = ids.ToList();
+            var entities = db.MeasurementEntities.Where(e => idsToRemove.Contains(e.Id)).ToList();
+            db.MeasurementEntities.RemoveRange(entities);
             return db.SaveChanges();
         }
     }

@@ -115,11 +115,11 @@ public class MqttResilientPublisher : IMqttResilientPublisher
                         }
                     }
                 }
-                Thread.Sleep(100);
+                await Task.Delay(100);
             }
             else
             {
-                Thread.Sleep(5000);
+                await Task.Delay(5000);
             }
         }
     }

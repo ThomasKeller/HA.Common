@@ -74,12 +74,15 @@ public partial class FileStore : IFileStore
             $"{FileNamePrefix}{todayTicks}.{FileExtension}");
         try
         {
-            foreach (var line in lines)
+            if (addNewLineIfNeeded)
             {
-                var tempLine = line;
-                if (addNewLineIfNeeded && !tempLine.EndsWith("\n"))
-                    tempLine += Environment.NewLine;
-                File.AppendAllText(fileName, tempLine);
+                var processedLines = lines.Select(line => 
+                    line.EndsWith("\n") ? line : line + Environment.NewLine);
+                File.AppendAllLines(fileName, processedLines);
+            }
+            else
+            {
+                File.AppendAllLines(fileName, lines);
             }
         }
         catch (UnauthorizedAccessException ex)
@@ -97,10 +100,11 @@ public partial class FileStore : IFileStore
         var files = Directory.GetFiles(DirectoryPath, $"*.{FileExtension}", new EnumerationOptions());
         if (files.Length > 0)
         {
-            var fileInfo = files
-                .Select(f => new FileInfo(f))
+            var oldestFile = files
+                .Select(f => (Path: f, CreationTime: File.GetCreationTime(f)))
                 .OrderBy(f => f.CreationTime)
                 .First();
+            var fileInfo = new FileInfo(oldestFile.Path);
             var lines = File.ReadAllLines(fileInfo.FullName);
             return new FileStoreData
             {

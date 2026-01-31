@@ -120,9 +120,10 @@ public class Measurement
             position = GetTextPart(line, position, out tagPart, blankDelimiter);
             position++;
             tagPart = LineProtocolSyntax.UnescapeName(tagPart);
-            var tagPairs = tagPart.Split(',').Select(pair => pair.Split('='));
-            foreach (var tagPair in tagPairs)
+            var tagParts = tagPart.Split(',');
+            foreach (var tagString in tagParts)
             {
+                var tagPair = tagString.Split('=');
                 if (tagPair.Length == 2)
                 {
                     if (tagPair[0] == "Quality")
@@ -141,9 +142,10 @@ public class Measurement
         }
         position = GetTextPart(line, position, out fieldPart, blankDelimiter);
         fieldPart = LineProtocolSyntax.UnescapeName(fieldPart);
-        var fieldPairs = fieldPart.Split(',').Select(pair => pair.Split('='));
-        foreach (var fieldPair in fieldPairs)
+        var fieldParts = fieldPart.Split(',');
+        foreach (var fieldString in fieldParts)
         {
+            var fieldPair = fieldString.Split('=');
             if (fieldPair.Length == 2)
             {
                 var value = ConvertValue(fieldPair[1]);
